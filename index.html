@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识卡片生成器 - Knowledge Card Generator</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            100: '#1f2937',
+                            200: '#374151',
+                            300: '#4b5563',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- 主容器 -->
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+
+        <!-- 标题区域 -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-blue-400 mb-2">
+                <i class="fas fa-brain mr-3"></i>知识卡片生成器
+            </h1>
+            <p class="text-gray-400 text-lg">将知识文本智能转换为结构化的学习卡片</p>
+
+            <!-- 配置状态和设置按钮 -->
+            <div class="flex items-center justify-center gap-4 mt-4">
+                <div id="configStatus" class="text-sm text-yellow-400">
+                    <i class="fas fa-exclamation-circle text-yellow-400 mr-2"></i>请先配置API设置
+                </div>
+                <button onclick="showConfigModal()"
+                        class="text-blue-400 hover:text-blue-300 transition-colors">
+                    <i class="fas fa-cog mr-1"></i>API设置
+                </button>
+            </div>
+        </header>
+
+        <!-- 消息容器 -->
+        <div id="messageContainer" class="mb-6"></div>
+
+        <!-- 输入区域 -->
+        <div class="mb-8">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-100">
+                        <i class="fas fa-edit mr-2 text-blue-400"></i>输入知识文本
+                    </h2>
+                    <button onclick="clearInput()"
+                            class="text-gray-400 hover:text-red-400 transition-colors"
+                            title="清空输入">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                </div>
+
+                <textarea id="inputText"
+                          placeholder="在此输入您想要转换为知识卡片的文本内容...&#10;&#10;例如：&#10;• 概念解释&#10;• 知识要点&#10;• 学习笔记&#10;• 教学材料&#10;等等"
+                          class="w-full h-48 bg-gray-700 border border-gray-600 rounded-lg p-4 text-gray-100 placeholder-gray-400 input-focus resize-none"
+                          style="min-height: 200px; max-height: 400px;"></textarea>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div class="text-sm text-gray-400">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        支持多种文本格式，系统会智能识别知识点结构
+                    </div>
+                    <button id="generateBtn"
+                            onclick="generateKnowledgeCards()"
+                            class="btn-primary bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200">
+                        <i class="fas fa-magic mr-2"></i>生成知识卡片
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 知识卡片展示区域 -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-100">
+                    <i class="fas fa-layer-group mr-2 text-green-400"></i>知识卡片
+                </h2>
+                <div class="text-sm text-gray-400">
+                    <i class="fas fa-copy mr-1"></i>点击卡片右上角图标可复制内容
+                </div>
+            </div>
+
+            <div id="cardsContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <!-- 初始提示卡片 -->
+                <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 col-span-full">
+                    <div class="text-center py-12">
+                        <i class="fas fa-lightbulb text-4xl text-gray-500 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-400 mb-2">暂无知识卡片</h3>
+                        <p class="text-gray-500">请在上方输入文本并点击"生成知识卡片"开始使用</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- API配置模态框 -->
+    <div id="configModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-100">
+                    <i class="fas fa-cog mr-2 text-blue-400"></i>API配置
+                </h3>
+                <button onclick="closeConfigModal()" class="text-gray-400 hover:text-red-400 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); saveConfiguration();" class="space-y-4">
+                <div>
+                    <label for="modalBaseUrl" class="block text-sm font-medium text-gray-300 mb-2">
+                        <i class="fas fa-server mr-1"></i>API Base URL
+                    </label>
+                    <input type="url"
+                           id="modalBaseUrl"
+                           placeholder="https://api.example.com/v1"
+                           class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 input-focus"
+                           required>
+                </div>
+
+                <div>
+                    <label for="modalApiKey" class="block text-sm font-medium text-gray-300 mb-2">
+                        <i class="fas fa-key mr-1"></i>API Key
+                    </label>
+                    <div class="relative">
+                        <input type="password"
+                               id="modalApiKey"
+                               placeholder="您的API密钥"
+                               class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 pr-12 text-gray-100 placeholder-gray-400 input-focus"
+                               required>
+                        <button type="button"
+                                id="apiKeyToggle"
+                                onclick="toggleApiKeyVisibility()"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="modalModelName" class="block text-sm font-medium text-gray-300 mb-2">
+                        <i class="fas fa-robot mr-1"></i>模型名称
+                    </label>
+                    <input type="text"
+                           id="modalModelName"
+                           placeholder="gemini-2.5-pro"
+                           value="gemini-2.5-pro"
+                           class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 input-focus"
+                           required>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-700">
+                    <button type="button"
+                            onclick="closeConfigModal()"
+                            class="px-4 py-2 text-gray-400 hover:text-gray-300 transition-colors">
+                        取消
+                    </button>
+                    <button type="submit"
+                            class="btn-primary bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200">
+                        <i class="fas fa-save mr-2"></i>保存配置
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="text-center text-gray-500 text-sm py-8">
+        <p>© 2024 知识卡片生成器 | 使用AI技术驱动的智能文本处理工具</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="json-extractor.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
