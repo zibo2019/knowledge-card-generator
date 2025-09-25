@@ -162,9 +162,83 @@ button[id^="toggleBtn-"].text-yellow-400:hover {
     text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
 }
 
+/* 全局切换按钮样式 */
+#showAllAnswersBtn, #hideAllAnswersBtn {
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+
+#showAllAnswersBtn:hover, #hideAllAnswersBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 绿色按钮（显示状态） */
+#showAllAnswersBtn.bg-green-600:hover {
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+/* 红色按钮（隐藏状态） */
+#hideAllAnswersBtn.bg-red-600 {
+    background-color: #dc2626 !important;
+}
+
+#hideAllAnswersBtn.bg-red-600:hover {
+    background-color: #b91c1c !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+/* 禁用状态按钮 */
+#showAllAnswersBtn.bg-gray-500, #hideAllAnswersBtn.bg-gray-600 {
+    cursor: default;
+    opacity: 0.7;
+}
+
+#showAllAnswersBtn.bg-gray-500:hover, #hideAllAnswersBtn.bg-gray-600:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* 全局按钮区域动画 */
+.flex.items-center.gap-2 {
+    animation: buttonGroupFadeIn 0.3s ease-out;
+}
+
+@keyframes buttonGroupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* 响应式网格调整 */
 @media (max-width: 768px) {
     .mobile-full {
         grid-column: 1 / -1;
+    }
+
+    /* 移动端全局按钮样式调整 */
+    .flex.items-center.gap-4 {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+    }
+
+    .flex.items-center.gap-2 {
+        justify-content: center;
+    }
+
+    #showAllAnswersBtn, #hideAllAnswersBtn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .text-sm.text-gray-400 {
+        text-align: center;
+        font-size: 0.75rem;
     }
 }

@@ -346,6 +346,9 @@ function renderKnowledgeCards() {
         const cardElement = createKnowledgeCardElement(card, index);
         container.appendChild(cardElement);
     });
+
+    // 初始化全局按钮状态
+    updateGlobalButtonsState();
 }
 
 // 创建知识卡片元素
@@ -450,6 +453,9 @@ function toggleAnswer(cardIndex) {
         toggleButton.classList.add('text-gray-400');
         toggleButton.title = '显示答案';
     }
+
+    // 更新全局按钮状态
+    updateGlobalButtonsState();
 }
 
 // 复制到剪贴板
@@ -468,6 +474,88 @@ async function copyToClipboard(elementId) {
     }
 }
 
+// 显示所有答案
+function showAllAnswers() {
+    knowledgeCards.forEach((card, index) => {
+        const answerElement = document.getElementById(`answer-${index}`);
+        const toggleButton = document.getElementById(`toggleBtn-${index}`);
+
+        if (answerElement && toggleButton) {
+            // 显示答案
+            answerElement.classList.remove('hidden');
+            answerElement.classList.add('answer-show');
+            toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
+            toggleButton.classList.remove('text-gray-400');
+            toggleButton.classList.add('text-yellow-400');
+            toggleButton.title = '隐藏答案';
+        }
+    });
+
+    // 更新全局按钮状态
+    updateGlobalButtonsState();
+    showMessage('已显示所有答案', 'success');
+}
+
+// 隐藏所有答案
+function hideAllAnswers() {
+    knowledgeCards.forEach((card, index) => {
+        const answerElement = document.getElementById(`answer-${index}`);
+        const toggleButton = document.getElementById(`toggleBtn-${index}`);
+
+        if (answerElement && toggleButton) {
+            // 隐藏答案
+            answerElement.classList.add('hidden');
+            answerElement.classList.remove('answer-show');
+            toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            toggleButton.classList.remove('text-yellow-400');
+            toggleButton.classList.add('text-gray-400');
+            toggleButton.title = '显示答案';
+        }
+    });
+
+    // 更新全局按钮状态
+    updateGlobalButtonsState();
+    showMessage('已隐藏所有答案', 'success');
+}
+
+// 更新全局按钮状态
+function updateGlobalButtonsState() {
+    const showAllBtn = document.getElementById('showAllAnswersBtn');
+    const hideAllBtn = document.getElementById('hideAllAnswersBtn');
+
+    if (!showAllBtn || !hideAllBtn || knowledgeCards.length === 0) return;
+
+    // 检查当前显示状态
+    let visibleCount = 0;
+    knowledgeCards.forEach((card, index) => {
+        const answerElement = document.getElementById(`answer-${index}`);
+        if (answerElement && !answerElement.classList.contains('hidden')) {
+            visibleCount++;
+        }
+    });
+
+    // 根据显示状态更新按钮样式
+    if (visibleCount === 0) {
+        // 全部隐藏状态
+        showAllBtn.classList.remove('bg-gray-500');
+        showAllBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        hideAllBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+        hideAllBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+    } else if (visibleCount === knowledgeCards.length) {
+        // 全部显示状态
+        showAllBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        showAllBtn.classList.add('bg-gray-500');
+        hideAllBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+        hideAllBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+    } else {
+        // 部分显示状态
+        showAllBtn.classList.remove('bg-gray-500');
+        showAllBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        hideAllBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+        hideAllBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+    }
+}
+
 // 清空结果
 function clearResults() {
     knowledgeCards = [];
@@ -475,6 +563,9 @@ function clearResults() {
     if (container) {
         container.innerHTML = '';
     }
+
+    // 重置全局按钮状态
+    updateGlobalButtonsState();
 }
 
 // 显示消息
