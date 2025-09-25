@@ -256,7 +256,7 @@ async function generateKnowledgeCards() {
                     }
                 ],
                 temperature: 0.7,
-                max_tokens: 4000
+                max_tokens: 10000
             })
         });
 
@@ -359,17 +359,27 @@ function createKnowledgeCardElement(card, index) {
     questionDiv.innerHTML = `
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-semibold text-blue-400 uppercase tracking-wide">问题 ${index + 1}</span>
-            <button onclick="copyToClipboard('card-${index}')"
-                    class="text-gray-400 hover:text-blue-400 transition-colors">
-                <i class="fas fa-copy"></i>
-            </button>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleAnswer(${index})"
+                        id="toggleBtn-${index}"
+                        class="text-gray-400 hover:text-yellow-400 transition-colors"
+                        title="显示/隐藏答案">
+                    <i class="fas fa-eye-slash"></i>
+                </button>
+                <button onclick="copyToClipboard('card-${index}')"
+                        class="text-gray-400 hover:text-blue-400 transition-colors"
+                        title="复制内容">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
         </div>
         <h3 class="text-lg font-semibold text-gray-100 mb-3">${escapeHtml(card.Q)}</h3>
     `;
 
     // 答案部分
     const answerDiv = document.createElement('div');
-    answerDiv.className = 'answer-content';
+    answerDiv.id = `answer-${index}`;
+    answerDiv.className = 'answer-content hidden'; // 默认隐藏答案
 
     if (Array.isArray(card.A)) {
         // 列表答案
@@ -412,6 +422,34 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// 切换答案显示/隐藏
+function toggleAnswer(cardIndex) {
+    const answerElement = document.getElementById(`answer-${cardIndex}`);
+    const toggleButton = document.getElementById(`toggleBtn-${cardIndex}`);
+
+    if (!answerElement || !toggleButton) return;
+
+    const isHidden = answerElement.classList.contains('hidden');
+
+    if (isHidden) {
+        // 显示答案
+        answerElement.classList.remove('hidden');
+        answerElement.classList.add('answer-show');
+        toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
+        toggleButton.classList.remove('text-gray-400');
+        toggleButton.classList.add('text-yellow-400');
+        toggleButton.title = '隐藏答案';
+    } else {
+        // 隐藏答案
+        answerElement.classList.add('hidden');
+        answerElement.classList.remove('answer-show');
+        toggleButton.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        toggleButton.classList.remove('text-yellow-400');
+        toggleButton.classList.add('text-gray-400');
+        toggleButton.title = '显示答案';
+    }
 }
 
 // 复制到剪贴板

@@ -113,6 +113,55 @@
     border-color: #3b82f6;
 }
 
+/* 答案显示/隐藏动画效果 */
+.answer-content {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.answer-content.hidden {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    transform: translateY(-10px);
+}
+
+.answer-content.answer-show {
+    opacity: 1;
+    max-height: 1000px;
+    margin-top: 1rem;
+    transform: translateY(0);
+    animation: answerSlideIn 0.4s ease-out;
+}
+
+@keyframes answerSlideIn {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+        transform: translateY(0);
+    }
+}
+
+/* 切换按钮悬浮效果 */
+button[id^="toggleBtn-"] {
+    transition: all 0.2s ease;
+}
+
+button[id^="toggleBtn-"]:hover {
+    transform: scale(1.1);
+}
+
+button[id^="toggleBtn-"].text-yellow-400:hover {
+    color: #fbbf24 !important;
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
 /* 响应式网格调整 */
 @media (max-width: 768px) {
     .mobile-full {
